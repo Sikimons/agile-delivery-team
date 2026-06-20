@@ -1,0 +1,372 @@
+{
+  "delivery": "dropshipping",
+  "generated": "2026-06-20",
+  "epics": [
+    {
+      "id": "E1",
+      "title": "Generación y Asignación de Órdenes Dropshipping",
+      "priority": 1,
+      "value": "El proveedor recibe la orden con información completa desde el primer momento, eliminando consultas previas a la aceptación y la doble venta por inventario no reservado.",
+      "origin": ["mvp-canvas:informacion-completa-orden", "requisitos:R-01", "requisitos:R-32", "requisitos:R-33"]
+    },
+    {
+      "id": "E2",
+      "title": "Portal del Proveedor — Gestión de Hitos de Entrega",
+      "priority": 2,
+      "value": "El proveedor opera desde un canal único para los cuatro hitos críticos (aceptar/rechazar, despachar, entregar con evidencia, registrar novedad), reemplazando el correo.",
+      "origin": ["mvp-canvas:portal-proveedor", "user-stories:US-01", "user-stories:US-02", "user-stories:US-03", "user-stories:US-04", "requisitos:R-02", "requisitos:R-03", "requisitos:R-06", "requisitos:R-07", "requisitos:R-08", "requisitos:R-30", "requisitos:R-34"]
+    },
+    {
+      "id": "E3",
+      "title": "Visibilidad y Trazabilidad Interna para el Analista",
+      "priority": 3,
+      "value": "El analista ve el estado real de todos los pedidos Dropshipping activos y accede al historial inmutable, dejando de perseguir al proveedor.",
+      "origin": ["mvp-canvas:vista-analista", "user-stories:US-05", "user-stories:US-06", "requisitos:R-05", "requisitos:R-21", "requisitos:R-24"]
+    },
+    {
+      "id": "E4",
+      "title": "Notificaciones Automáticas al Cliente en Hitos Clave",
+      "priority": 4,
+      "value": "El cliente recibe información proactiva y específica en los cuatro hitos del pedido Dropshipping, reduciendo las consultas entrantes al especialista de eCommerce.",
+      "origin": ["mvp-canvas:notificaciones-cliente", "user-stories:US-07", "user-stories:US-08", "user-stories:US-09", "requisitos:R-13", "requisitos:R-14", "requisitos:R-29"]
+    },
+    {
+      "id": "E5",
+      "title": "Indicadores Operativos del Proceso Dropshipping",
+      "priority": 5,
+      "value": "Expone los KPIs que permiten medir si el MVP cumple su promesa (analista sin consultas manuales ≥ 70 %) y distingue retrasos imputables al proveedor de los causados internamente.",
+      "origin": ["mvp-canvas:metrica-exito", "requisitos:R-21", "requisitos:R-36"]
+    }
+  ],
+  "stories": [
+    {
+      "id": "US-01",
+      "epic": "E1",
+      "as_a": "Analista de Compras y Logística",
+      "want": "que al confirmar una venta Dropshipping el sistema genere y envíe automáticamente la solicitud de orden al proveedor asignado al producto",
+      "so_that": "no tenga que crearla manualmente y el proveedor la reciba de inmediato sin depender de correos",
+      "acceptance_criteria": [
+        "Dado que se registra el pago de una venta Dropshipping, cuando el sistema procesa la confirmación, entonces identifica al proveedor del producto y genera la orden automáticamente en menos de 1 minuto.",
+        "Dado que la orden es generada, cuando el proveedor accede al portal, entonces la ve en su lista de órdenes pendientes con todos los campos requeridos por R-32.",
+        "Dado que el sistema no puede identificar un proveedor para el producto, cuando intenta crear la orden, entonces genera una alerta al analista y no crea una orden vacía."
+      ],
+      "estimate": 3,
+      "priority": 1,
+      "dependencies": [],
+      "open_questions": [],
+      "origin": ["requisitos:R-01", "personas:dolor-confirmacion-proveedor-manual"]
+    },
+    {
+      "id": "US-02",
+      "epic": "E1",
+      "as_a": "Analista de Compras y Logística",
+      "want": "que al confirmar el pedido el sistema reserve automáticamente la unidad del proveedor en el inventario del sistema",
+      "so_that": "no se venda la misma unidad en otro canal antes de que el proveedor actualice disponibilidad",
+      "acceptance_criteria": [
+        "Dado que se confirma un pedido Dropshipping con inventario integrado en el sistema, cuando se genera la orden, entonces la unidad queda marcada como 'reservada' y no aparece disponible para otros pedidos ni canales.",
+        "Dado que el proveedor rechaza el pedido, cuando registra el rechazo en el portal, entonces el sistema libera la reserva automáticamente.",
+        "Dado que el pedido es cancelado, cuando el sistema registra la cancelación, entonces libera la reserva de inventario correspondiente.",
+        "Dado que el producto usa inventario externo al sistema, cuando se confirma el pedido, entonces el sistema notifica al analista que la reserva debe gestionarse manualmente fuera del sistema."
+      ],
+      "estimate": 2,
+      "priority": 3,
+      "dependencies": ["US-01"],
+      "open_questions": [],
+      "origin": ["requisitos:R-33", "personas-proveedor:dolor-stock-doble-canal", "mvp-canvas:nota-reserva-inventario"]
+    },
+    {
+      "id": "US-03",
+      "epic": "E1",
+      "as_a": "Proveedor",
+      "want": "recibir órdenes que incluyan todos los datos necesarios para procesar el pedido sin preguntar: código del producto, descripción, cantidad, dirección completa con ciudad, teléfono del cliente, fecha esperada y condiciones especiales",
+      "so_that": "pueda aceptar y procesar el pedido sin tener que contactar al analista para completar información faltante",
+      "acceptance_criteria": [
+        "Dado que el sistema genera una orden Dropshipping, cuando va a enviarla al proveedor, entonces valida que incluya: código de producto, descripción, cantidad, dirección con ciudad, teléfono del cliente, fecha esperada y condiciones especiales si aplica.",
+        "Dado que un campo obligatorio está vacío en la orden, cuando el sistema intenta enviarla, entonces bloquea el envío y notifica al analista indicando cuál campo falta.",
+        "Dado que la orden tiene todos los campos completos, cuando el sistema la envía al proveedor, entonces el proveedor la recibe en el portal con todos los datos visibles sin ningún campo en blanco."
+      ],
+      "estimate": 2,
+      "priority": 2,
+      "dependencies": ["US-01"],
+      "open_questions": [],
+      "origin": ["requisitos:R-32", "personas-proveedor:dolor-pedido-incompleto-al-recibir"]
+    },
+    {
+      "id": "US-04",
+      "epic": "E2",
+      "as_a": "Proveedor",
+      "want": "ver mis órdenes Dropshipping asignadas con toda la información del pedido y poder aceptarlas indicando una fecha estimada de despacho",
+      "so_that": "pueda operar desde el portal sin necesidad de consultar correos ni contactar al analista para obtener datos",
+      "acceptance_criteria": [
+        "Dado que el proveedor accede al portal, cuando tiene órdenes asignadas, entonces las ve en una lista con: código de producto, descripción, cantidad, dirección, teléfono del cliente, fecha esperada y condiciones especiales.",
+        "Dado que el proveedor acepta una orden, cuando ingresa la fecha estimada de despacho y confirma, entonces el pedido cambia a estado 'Aceptado', se registra actor y timestamp, y el analista ve la actualización en su vista.",
+        "Dado que el proveedor intenta aceptar sin ingresar una fecha estimada, cuando intenta guardar, entonces el sistema bloquea la acción e indica que la fecha estimada es requerida.",
+        "Dado que el proveedor completa el hito de aceptación, cuando el sistema lo registra, entonces el flujo completo no requirió más de 3 acciones desde que el proveedor abrió la orden."
+      ],
+      "estimate": 5,
+      "priority": 4,
+      "dependencies": ["US-01", "US-03"],
+      "open_questions": [],
+      "origin": ["user-stories:US-01", "requisitos:R-02", "requisitos:R-30", "mvp-canvas:portal-3-acciones"]
+    },
+    {
+      "id": "US-05",
+      "epic": "E2",
+      "as_a": "Proveedor",
+      "want": "poder rechazar una orden indicando el motivo del rechazo",
+      "so_that": "el equipo comercial reciba una alerta inmediata y pueda ofrecer una alternativa al cliente antes de que reclame",
+      "acceptance_criteria": [
+        "Dado que el proveedor rechaza una orden, cuando selecciona un motivo de rechazo de la lista y confirma, entonces el pedido cambia a 'Rechazado', se registran actor, motivo y timestamp, y el equipo comercial recibe una alerta inmediata.",
+        "Dado que el proveedor intenta rechazar sin seleccionar motivo, cuando intenta guardar, entonces el sistema bloquea la acción y solicita que seleccione o ingrese el motivo.",
+        "Dado que el pedido queda en estado 'Rechazado', cuando el analista consulta el listado de pedidos, entonces ese pedido aparece con indicador visual diferenciado del resto de estados."
+      ],
+      "estimate": 2,
+      "priority": 5,
+      "dependencies": ["US-04"],
+      "open_questions": [],
+      "origin": ["user-stories:US-01", "requisitos:R-03"]
+    },
+    {
+      "id": "US-06",
+      "epic": "E2",
+      "as_a": "Proveedor",
+      "want": "registrar el despacho del pedido con número de guía de transportadora o, si no hay guía, con información de transporte propio (placa, nombre del conductor y fecha de salida)",
+      "so_that": "el tracking llegue al analista y al cliente sin que nadie tenga que solicitármelo manualmente",
+      "acceptance_criteria": [
+        "Dado que el proveedor despacha con transportadora, cuando registra número de guía, nombre del transportista y fecha de salida, entonces el pedido cambia a 'En tránsito' y el analista ve la información de tracking actualizada.",
+        "Dado que el proveedor usa transporte propio, cuando registra placa, nombre del conductor y fecha de salida sin guía de transportadora, entonces el sistema acepta el despacho y actualiza el estado a 'En tránsito' igualmente.",
+        "Dado que el proveedor intenta registrar el despacho sin ningún dato de transporte, cuando intenta guardar, entonces el sistema bloquea la acción e indica que se requiere al menos un tipo de información de transporte.",
+        "Dado que el pedido pasa a 'En tránsito', cuando el analista consulta el detalle, entonces ve la información de transporte completa con fecha y hora del registro."
+      ],
+      "estimate": 3,
+      "priority": 6,
+      "dependencies": ["US-04"],
+      "open_questions": [],
+      "origin": ["user-stories:US-02", "requisitos:R-06"]
+    },
+    {
+      "id": "US-07",
+      "epic": "E2",
+      "as_a": "Proveedor",
+      "want": "marcar un pedido como entregado adjuntando evidencia de la entrega (foto, firma digital o nombre completo del receptor)",
+      "so_that": "el pedido quede cerrado de forma verificable y se reduzcan los reclamos por entregas no reconocidas",
+      "acceptance_criteria": [
+        "Dado que el proveedor intenta marcar el pedido como 'Entregado' sin adjuntar evidencia, cuando intenta guardar, entonces el sistema bloquea la acción y muestra que se requiere evidencia.",
+        "Dado que el proveedor adjunta evidencia válida (foto, firma o nombre del receptor), cuando guarda, entonces el pedido cambia a 'Entregado', el archivo queda vinculado al historial y se registra la fecha y hora exactas.",
+        "Dado que el pedido queda en estado 'Entregado', cuando el analista consulta el detalle, entonces puede acceder a la evidencia adjunta desde el historial del pedido.",
+        "Dado que el pedido es marcado como 'Entregado' con evidencia, cuando el sistema registra el cambio, entonces dispara la notificación de entrega al cliente."
+      ],
+      "estimate": 3,
+      "priority": 7,
+      "dependencies": ["US-06"],
+      "open_questions": [],
+      "origin": ["user-stories:US-03", "requisitos:R-07"]
+    },
+    {
+      "id": "US-08",
+      "epic": "E2",
+      "as_a": "Proveedor",
+      "want": "registrar una novedad de entrega desde el campo en el momento que ocurre (cliente no disponible, dirección incorrecta, producto dañado) con tipo de novedad, observación y foto opcional",
+      "so_that": "todos los actores vean el problema en tiempo real sin esperar que el conductor reporte internamente",
+      "acceptance_criteria": [
+        "Dado que ocurre una novedad durante la entrega, cuando el proveedor registra el tipo de novedad y una observación, entonces el pedido cambia a 'Novedad', se crea una incidencia con responsable asignado y el analista recibe alerta inmediata.",
+        "Dado que el proveedor adjunta una foto a la novedad, cuando guarda, entonces la imagen queda vinculada a la incidencia como evidencia del estado en campo.",
+        "Dado que existe una novedad registrada, cuando el sistema la procesa, entonces el pedido no se marca como 'Entregado' ni queda en estado genérico 'Pendiente'.",
+        "Dado que la novedad queda registrada, cuando el analista la consulta, entonces ve tipo, observación, responsable asignado, evidencia adjunta si la hay, y la hora del registro."
+      ],
+      "estimate": 3,
+      "priority": 8,
+      "dependencies": ["US-04"],
+      "open_questions": [],
+      "origin": ["user-stories:US-04", "requisitos:R-08", "requisitos:R-34"]
+    },
+    {
+      "id": "US-09",
+      "epic": "E3",
+      "as_a": "Analista de Compras y Logística",
+      "want": "ver en una sola vista todos los pedidos Dropshipping activos con su estado actual, proveedor asignado, fecha prometida y días transcurridos desde el último update",
+      "so_that": "pueda detectar retrasos antes de que el cliente reclame sin necesidad de consultar correos ni llamar al proveedor",
+      "acceptance_criteria": [
+        "Dado que hay pedidos Dropshipping en curso, cuando el analista abre el módulo, entonces ve una lista con todos los pedidos activos incluyendo: estado, proveedor asignado, fecha prometida y días desde el último update.",
+        "Dado que el proveedor actualiza el estado de un pedido en el portal, cuando guarda el cambio, entonces la vista del analista refleja el nuevo estado sin necesidad de recargar manualmente.",
+        "Dado que el analista aplica un filtro por proveedor o por estado, cuando selecciona el criterio, entonces la lista muestra únicamente los pedidos que cumplen el filtro."
+      ],
+      "estimate": 5,
+      "priority": 9,
+      "dependencies": ["US-04"],
+      "open_questions": [],
+      "origin": ["user-stories:US-05", "requisitos:R-21", "personas-analista:dolor-visibilidad-post-envio"]
+    },
+    {
+      "id": "US-10",
+      "epic": "E3",
+      "as_a": "Analista de Compras y Logística",
+      "want": "recibir una alerta automática cuando un pedido Dropshipping activo no ha recibido ninguna actualización del proveedor en más de 48 horas (plazo configurable por administrador)",
+      "so_that": "pueda intervenir proactivamente antes de que el cliente reclame por desconocimiento del estado",
+      "acceptance_criteria": [
+        "Dado que un pedido Dropshipping lleva más de 48 horas sin actualización del proveedor, cuando se cumple el plazo, entonces el sistema genera una alerta visible en la vista del analista con el pedido destacado y el tiempo transcurrido.",
+        "Dado que el analista hace clic en la alerta, cuando accede al detalle del pedido, entonces ve la fecha y hora del último update y el tiempo total transcurrido desde entonces.",
+        "Dado que el administrador configura un plazo distinto al default de 48 horas, cuando guarda la configuración, entonces las alertas se generan según el nuevo plazo para todos los pedidos activos.",
+        "Dado que el proveedor actualiza el pedido antes de que venza el plazo, cuando registra el update, entonces la alerta pendiente se cancela automáticamente."
+      ],
+      "estimate": 3,
+      "priority": 10,
+      "dependencies": ["US-09"],
+      "open_questions": [],
+      "origin": ["user-stories:US-05", "mvp-canvas:alerta-plazo-configurado"]
+    },
+    {
+      "id": "US-11",
+      "epic": "E3",
+      "as_a": "Analista de Compras y Logística",
+      "want": "acceder al historial completo de cambios de estado de cada pedido Dropshipping, con el actor que realizó cada cambio y el timestamp exacto, sin posibilidad de modificación posterior",
+      "so_that": "pueda resolver reclamos o discrepancias con información verificable sin depender de correos o llamadas",
+      "acceptance_criteria": [
+        "Dado que el analista consulta el detalle de un pedido Dropshipping, cuando accede al historial, entonces ve una línea de tiempo cronológica con cada cambio de estado, el actor responsable (nombre de usuario o rol) y el timestamp exacto.",
+        "Dado que el proveedor modifica una fecha confirmada, cuando guarda el cambio, entonces el historial registra la fecha anterior y la nueva con el motivo indicado, sin sobrescribir el registro previo.",
+        "Dado que se agrega un nuevo cambio al historial, cuando el sistema lo registra, entonces ninguna acción de usuario posterior puede eliminar ni modificar ese registro."
+      ],
+      "estimate": 3,
+      "priority": 11,
+      "dependencies": ["US-09"],
+      "open_questions": [],
+      "origin": ["user-stories:US-06", "requisitos:R-05"]
+    },
+    {
+      "id": "US-12",
+      "epic": "E3",
+      "as_a": "Analista de Compras y Logística",
+      "want": "registrar manualmente en el sistema las actualizaciones de estado de pedidos de proveedores que operan por correo, indicando que es un registro manual",
+      "so_that": "la trazabilidad del historial permanezca completa aunque el proveedor no use el portal",
+      "acceptance_criteria": [
+        "Dado que el analista registra un cambio de estado manualmente para un proveedor que opera por correo, cuando guarda la entrada, entonces el sistema la agrega al historial del pedido con la etiqueta 'registro manual' y el nombre del analista.",
+        "Dado que el analista intenta registrar manualmente el estado 'Entregado' sin adjuntar un archivo de respaldo, cuando intenta guardar, entonces el sistema bloquea la acción e indica que se requiere evidencia adjunta.",
+        "Dado que existe un registro manual en el historial, cuando cualquier actor lo consulta, entonces la etiqueta 'registro manual' aparece diferenciada visualmente de los cambios automáticos originados desde el portal."
+      ],
+      "estimate": 2,
+      "priority": 12,
+      "dependencies": ["US-11"],
+      "open_questions": [],
+      "origin": ["user-stories:US-06", "requisitos:R-24", "mvp-canvas:proceso-alternativo-correo"]
+    },
+    {
+      "id": "US-13",
+      "epic": "E4",
+      "as_a": "Especialista de eCommerce y Servicio al Cliente",
+      "want": "que el cliente reciba notificaciones automáticas por email en los hitos clave del pedido Dropshipping (aceptado, en tránsito, entregado) con el nombre del producto y el detalle específico del cambio",
+      "so_that": "el cliente no tenga que llamar para conocer el estado de su pedido y se reduzcan los contactos de dónde está mi pedido",
+      "acceptance_criteria": [
+        "Dado que el proveedor acepta el pedido con fecha estimada, cuando registra la aceptación, entonces el cliente recibe email: 'Tu producto [nombre] fue aceptado por el proveedor. Fecha estimada de entrega: [fecha].'",
+        "Dado que el proveedor registra el despacho con información de transporte, cuando el pedido pasa a 'En tránsito', entonces el cliente recibe email con el nombre del producto y el número de guía si existe o la información de transporte alternativo.",
+        "Dado que el pedido es marcado como 'Entregado' con evidencia, cuando el sistema procesa el cambio, entonces el cliente recibe email de confirmación de entrega con el nombre del producto y la fecha.",
+        "Dado que el pedido pasa a estado 'Novedad', cuando el sistema lo registra, entonces no se envía notificación de entrega al cliente; el sistema espera la resolución de la incidencia.",
+        "Dado que se genera cualquier notificación de hito, cuando el sistema la construye, entonces el mensaje indica explícitamente el nombre del producto y qué cambió; no usa texto genérico de 'estado actualizado'."
+      ],
+      "estimate": 5,
+      "priority": 13,
+      "dependencies": ["US-04", "US-06", "US-07"],
+      "open_questions": [],
+      "origin": ["user-stories:US-07", "requisitos:R-13", "mvp-canvas:notificaciones-4-hitos"]
+    },
+    {
+      "id": "US-14",
+      "epic": "E4",
+      "as_a": "Especialista de eCommerce y Servicio al Cliente",
+      "want": "que el cliente reciba automáticamente una notificación por email cuando cambia la fecha prometida de su pedido Dropshipping, indicando la fecha anterior y la nueva fecha",
+      "so_that": "el cliente se entere del cambio antes de preguntar y no se sorprenda el día de la entrega original",
+      "acceptance_criteria": [
+        "Dado que el proveedor modifica la fecha prometida de un pedido aceptado, cuando guarda el cambio, entonces el sistema envía al cliente un email: 'La fecha estimada de entrega de [producto] cambió de [fecha anterior] a [nueva fecha].'",
+        "Dado que la notificación de cambio de fecha es generada, cuando el cliente la recibe, entonces el mensaje incluye un canal de contacto central para consultas y no redirige directamente al proveedor.",
+        "Dado que el analista modifica la fecha vía registro manual, cuando guarda el cambio, entonces el sistema también genera la notificación al cliente con la fecha anterior y la nueva."
+      ],
+      "estimate": 2,
+      "priority": 14,
+      "dependencies": ["US-13", "US-12"],
+      "open_questions": [],
+      "origin": ["user-stories:US-09", "requisitos:R-14"]
+    },
+    {
+      "id": "US-15",
+      "epic": "E4",
+      "as_a": "Cliente Final",
+      "want": "recibir un aviso por email antes de que el proveedor me contacte para coordinar la entrega de mi pedido, indicando que la comunicación es de un proveedor autorizado y cuál es el motivo",
+      "so_that": "pueda identificar la comunicación como legítima y no la ignore o rechace por considerarla desconocida",
+      "acceptance_criteria": [
+        "Dado que el proveedor necesita coordinar la entrega directamente con el cliente, cuando el sistema registra que el pedido avanza a estado de coordinación, entonces envía al cliente email: 'Un proveedor autorizado de [empresa] se comunicará contigo para coordinar la entrega de [producto]. Motivo: [descripción breve].'",
+        "Dado que el proveedor contacta al cliente sin que exista el preaviso en el historial del pedido, cuando el analista lo detecta, entonces puede generar el preaviso manualmente desde la vista de detalle del pedido.",
+        "Dado que el preaviso es enviado, cuando el sistema lo registra, entonces queda en el historial del pedido con fecha y hora del envío, diferenciado de las notificaciones automáticas de hito."
+      ],
+      "estimate": 2,
+      "priority": 15,
+      "dependencies": ["US-13"],
+      "open_questions": [],
+      "origin": ["user-stories:US-08", "requisitos:R-29", "personas-cliente:dolor-proveedor-no-identificado"]
+    },
+    {
+      "id": "US-16",
+      "epic": "E5",
+      "as_a": "Analista de Compras y Logística",
+      "want": "acceder a un dashboard con los indicadores operativos del proceso Dropshipping: tiempo promedio de aceptación del proveedor, porcentaje de cumplimiento de fechas prometidas, pedidos con novedad y tiempo total promedio hasta entrega",
+      "so_that": "pueda medir si el portal está cumpliendo la meta de reducir las consultas manuales y detectar patrones que requieren intervención",
+      "acceptance_criteria": [
+        "Dado que el analista accede al dashboard de indicadores, cuando lo abre, entonces ve: tiempo promedio desde generación de orden hasta aceptación del proveedor, porcentaje de pedidos que cumplieron la fecha prometida, cantidad de pedidos con novedad registrada y tiempo total promedio desde confirmación hasta entrega.",
+        "Dado que el analista filtra por un rango de fechas, cuando aplica el filtro, entonces todos los indicadores del dashboard se recalculan para el período seleccionado.",
+        "Dado que un indicador supera un umbral de alerta configurable, cuando el analista ve el dashboard, entonces ese indicador aparece destacado visualmente diferenciado de los que están dentro del rango esperado."
+      ],
+      "estimate": 5,
+      "priority": 16,
+      "dependencies": ["US-09", "US-07", "US-08"],
+      "open_questions": [],
+      "origin": ["requisitos:R-21", "mvp-canvas:metrica-exito-70-porciento"]
+    },
+    {
+      "id": "US-17",
+      "epic": "E5",
+      "as_a": "Analista de Compras y Logística",
+      "want": "ver indicadores diferenciados por proveedor que distingan retrasos imputables al proveedor (incumplimiento de fecha aceptada) de los causados por información incompleta en la orden o por cambios de condiciones realizados internamente post-aceptación",
+      "so_that": "pueda tener conversaciones objetivas con el proveedor sobre su desempeño sin mezclar causas externas con causas internas",
+      "acceptance_criteria": [
+        "Dado que el analista consulta los indicadores de un proveedor específico, cuando accede al detalle, entonces ve: tasa de pedidos recibidos con información incompleta (que generaron solicitud de datos adicionales) y tasa de pedidos que cambiaron condiciones después de ser aceptados.",
+        "Dado que un pedido tuvo cambio de condiciones post-aceptación (dirección, fecha o cancelación) originado desde el equipo interno, cuando el sistema lo registra, entonces lo clasifica como 'cambio interno' y no lo contabiliza como incumplimiento del proveedor en el indicador de cumplimiento de fechas.",
+        "Dado que el analista exporta los indicadores del proveedor, cuando descarga el reporte, entonces incluye ambas tasas separadas (incumplimiento del proveedor vs. cambios internos) con el período de referencia."
+      ],
+      "estimate": 5,
+      "priority": 17,
+      "dependencies": ["US-16", "US-03"],
+      "open_questions": [],
+      "origin": ["requisitos:R-36"]
+    }
+  ],
+  "open_questions": [
+    {
+      "id": "OQ-1",
+      "question": "¿A través de qué canal se envían las notificaciones al cliente (email, SMS, push, WhatsApp)?",
+      "impact": "Las historias US-13, US-14 y US-15 asumen email como canal. Si el equipo decide otro canal, los criterios de aceptación deben actualizarse. Validar antes del sprint de E4.",
+      "resolution_assumption": "Email. Configurable en v2 para SMS o WhatsApp."
+    },
+    {
+      "id": "OQ-2",
+      "question": "¿El portal del proveedor es una URL web pública o requiere integración con el ERP/sistema del proveedor?",
+      "impact": "US-04 asume portal web. Si algún proveedor requiere integración API, es un proyecto separado no incluido en el MVP.",
+      "resolution_assumption": "Portal web (URL pública). Integración ERP fuera de alcance del MVP."
+    },
+    {
+      "id": "OQ-3",
+      "question": "¿Cuál es el plazo por defecto para la alerta al analista por pedido sin actualización?",
+      "impact": "US-10 asume 48 horas como default configurable. Validar con el equipo operativo antes del sprint de E3.",
+      "resolution_assumption": "48 horas, configurable por administrador del sistema."
+    },
+    {
+      "id": "OQ-4",
+      "question": "¿El registro manual del proceso alternativo por correo requiere aprobación o es registro libre por el analista?",
+      "impact": "US-12 asume registro libre por el analista, marcado como 'registro manual'. Si se requiere aprobación, la historia necesita criterios adicionales.",
+      "resolution_assumption": "Registro libre por el analista, sin aprobación adicional, queda marcado como 'registro manual'."
+    },
+    {
+      "id": "OQ-5",
+      "question": "¿La reserva de inventario aplica también a proveedores que gestionan su stock fuera del sistema?",
+      "impact": "US-02 alcanza solo inventario integrado. Para stock externo, notificación al analista. Si el inventario de todos los proveedores es externo, US-02 pierde valor y debe redefinirse.",
+      "resolution_assumption": "Scoped a inventario integrado. Stock externo: notificación manual al analista."
+    }
+  ]
+}

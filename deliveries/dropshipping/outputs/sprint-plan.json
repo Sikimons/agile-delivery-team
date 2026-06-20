@@ -1,0 +1,22 @@
+{
+  "delivery": "dropshipping",
+  "sprint": 1,
+  "sprint_goal": "El proveedor opera los cuatro hitos del ciclo Dropshipping (aceptar, rechazar, despachar y confirmar entrega con evidencia) desde el portal web, y las órdenes se generan automáticamente con información completa al confirmar la venta en el eCommerce.",
+  "capacity": 20,
+  "committed": 20,
+  "stories": ["US-01", "US-03", "US-02", "US-04", "US-05", "US-06", "US-07"],
+  "epics_covered": ["E1", "E2"],
+  "story_details": [
+    { "id": "US-01", "title": "Generación automática de orden al confirmar venta", "pts": 3, "epic": "E1", "priority": 1 },
+    { "id": "US-03", "title": "Validación de completitud de la orden antes de enviarla", "pts": 2, "epic": "E1", "priority": 2 },
+    { "id": "US-02", "title": "Reserva automática de inventario al confirmar pedido", "pts": 2, "epic": "E1", "priority": 3 },
+    { "id": "US-04", "title": "Ver y aceptar órdenes asignadas con fecha estimada", "pts": 5, "epic": "E2", "priority": 4 },
+    { "id": "US-05", "title": "Rechazar una orden indicando el motivo", "pts": 2, "epic": "E2", "priority": 5 },
+    { "id": "US-06", "title": "Registrar despacho con guía o transporte alternativo", "pts": 3, "epic": "E2", "priority": 6 },
+    { "id": "US-07", "title": "Confirmar entrega con evidencia adjunta", "pts": 3, "epic": "E2", "priority": 7 }
+  ],
+  "backlog_remaining": {
+    "stories": ["US-08", "US-09", "US-10", "US-11", "US-12", "US-13", "US-14", "US-15", "US-16", "US-17"],
+    "pts": 35
+  }
+}
